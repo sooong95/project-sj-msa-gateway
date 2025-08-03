@@ -1,0 +1,41 @@
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+spring:
+  application:
+    name: sj-gateway
+  cloud:
+    gateway:
+      #      CORS \uCC98\uB9AC. \uC11C\uBE44\uC2A4\uBAA8\uB4C8\uC5D0\uC11C\uB294 \uC6F9\uBE0C\uB77C\uC6B0\uC800\uC640 \uC9C1\uC811 \uD1B5\uC2E0\uD558\uC9C0 \uC54A\uC73C\uBBC0\uB85C, cors\uCC98\uB9AC \uBD88\uD544\uC694.
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - 'http://localhost:3000'
+            #              - 'https://www.example.com'
+            allowedMethods: '*'
+            allowedHeaders: '*'
+            allowedCredentials: true
+      routes:
+        - id: sj-member-service
+          predicates:
+            - Path=/member-service/**
+          filters:
+            # StripPrefix : \uCCAB\uBC88\uC9F8 \uC811\uB450\uC5B4\uB97C \uC81C\uAC70\uD6C4\uC5D0 member-service\uB85C http\uC694\uCCAD \uC804\uB2EC
+            - StripPrefix=1
+          uri: lb://member-service
+        - id: sj-ordering-service
+          predicates:
+            - Path=/ordering-service/**
+          filters:
+            - StripPrefix=1
+          uri: lb://ordering-service
+        - id: sj-payment-service
+          predicates:
+            - Path=/payment-service/**
+          filters:
+            - StripPrefix=1
+          uri: lb://payment-service
+jwt:
+  secretKey: YmV5b25kYWNjZXNzdG9rZW5zZWNyZXRrZXliZXlvbmRhY2Nlc3N0b2tlbnNlY3JldGtleWJleW9uZGFjY2Vzc3Rva2Vuc2VjcmV0a2V5
