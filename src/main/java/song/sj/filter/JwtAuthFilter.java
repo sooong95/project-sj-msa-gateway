@@ -21,8 +21,11 @@ public class JwtAuthFilter implements GlobalFilter {
     private static final List<String> ALLOWED_PATHS = List.of(
             "/member/join",
             "/member/login",
+            "/shop-member/join",
+            "/memberInfo/all",
             "/member/refresh-token",
-            "/ordering/list"
+            "/ordering/list",
+            "/actuator/prometheus"
     );
 
     @Override
@@ -51,14 +54,16 @@ public class JwtAuthFilter implements GlobalFilter {
                     .getBody();
 
             // 사용자 ID 추출
-            String userId = claims.getSubject();
+            String email = claims.getSubject();
+            Long userId = claims.get("userId", Long.class);
             String role = claims.get("role", String.class);
 
             // 헤더에 X-User-Id변수로 id값 추가 및 ROLE 추가
             // X를 붙이는 것은 custom header라는 것을 의미하는 널리 쓰이는 관례
             ServerWebExchange modifiedExchange = exchange.mutate()
                     .request(builder -> builder
-                            .header("X-User-Id", userId)
+                            .header("X-User-Email", String.valueOf(email))
+                            .header("X-User-Id", String.valueOf(userId))
                             .header("X-User-Role", "ROLE_" + role) // 역할 추가
                     )
                     .build();

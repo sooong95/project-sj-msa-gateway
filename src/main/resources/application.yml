@@ -20,22 +20,49 @@ spring:
       routes:
         - id: sj-member-service
           predicates:
-            - Path=/member-service/**
+            - Path=/sj-member-service/**
           filters:
             # StripPrefix : \uCCAB\uBC88\uC9F8 \uC811\uB450\uC5B4\uB97C \uC81C\uAC70\uD6C4\uC5D0 member-service\uB85C http\uC694\uCCAD \uC804\uB2EC
             - StripPrefix=1
-          uri: lb://member-service
+          uri: lb://sj-member-service
         - id: sj-ordering-service
           predicates:
-            - Path=/ordering-service/**
+            - Path=/sj-ordering-service/**
           filters:
             - StripPrefix=1
-          uri: lb://ordering-service
+          uri: lb://sj-ordering-service
         - id: sj-payment-service
           predicates:
-            - Path=/payment-service/**
+            - Path=/sj-payment-service/**
           filters:
             - StripPrefix=1
-          uri: lb://payment-service
+          uri: lb://sj-payment-service
+        - id: sj-item-service
+          predicates:
+            - Path=/sj-item-service/**
+          filters:
+            - StripPrefix=1
+          uri: lb://sj-item-service
+        - id: sj-shop-service
+          predicates:
+            - Path=/sj-shop-service/**
+          filters:
+            - StripPrefix=1
+          uri: lb://sj-shop-service
 jwt:
   secretKey: YmV5b25kYWNjZXNzdG9rZW5zZWNyZXRrZXliZXlvbmRhY2Nlc3N0b2tlbnNlY3JldGtleWJleW9uZGFjY2Vzc3Rva2Vuc2VjcmV0a2V5
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, prometheus, busrefresh, refresh
+  tracing:
+    sampling:
+      probability: 1.0
+    propagation:
+      consume: b3
+      produce: b3_multi
+  zipkin:
+    tracing:
+      endpoint: "http://localhost:9411/api/v2/spans"
