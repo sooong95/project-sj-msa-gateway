@@ -25,7 +25,8 @@ public class JwtAuthFilter implements GlobalFilter {
             "/memberInfo/all",
             "/member/refresh-token",
             "/ordering/list",
-            "/actuator/prometheus"
+            "/actuator/prometheus",
+            "/shopSearch"
     );
 
     @Override
