@@ -7,6 +7,7 @@ import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
@@ -14,6 +15,9 @@ import java.util.List;
 
 @Component
 public class JwtAuthFilter implements GlobalFilter {
+
+    private static final AntPathMatcher pathMatcher = new AntPathMatcher();
+
 
     @Value("${jwt.secretKey}")
     private String secretKey;
@@ -26,7 +30,9 @@ public class JwtAuthFilter implements GlobalFilter {
             "/member/refresh-token",
             "/ordering/list",
             "/actuator/prometheus",
-            "/shopSearch"
+            "/shopSearch",
+            "/review/{shopId}/reviews",
+            "/actuator/**"
     );
 
     @Override
@@ -37,7 +43,11 @@ public class JwtAuthFilter implements GlobalFilter {
         String path = exchange.getRequest().getURI().getRawPath();
         System.out.println(path);
         // 인증이 필요 없는 경로는 필터를 통과
-        if (ALLOWED_PATHS.contains(path)) {
+        /*if (ALLOWED_PATHS.contains(path)) {
+            return chain.filter(exchange);
+        }*/
+
+        if (isAllowedPath(path)) {
             return chain.filter(exchange);
         }
 
@@ -78,5 +88,14 @@ public class JwtAuthFilter implements GlobalFilter {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }
+    }
+
+    private boolean isAllowedPath(String path) {
+        for (String allowedPath : ALLOWED_PATHS) {
+            if (pathMatcher.match(allowedPath, path)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
